@@ -213,72 +213,126 @@ class _defaultStatescreen extends State<defaultscreen> {
                 ))
               : ListView.builder(
                   itemCount: journels.length,
-                  itemBuilder: (context, index) => Card(
-                    elevation: 1,
-                    shadowColor: Color.fromARGB(183, 66, 70, 71),
-                    margin: EdgeInsets.all(10),
-                    color: Color.fromARGB(108, 36, 58, 66),
-                    child: ListTile(
-                      leading: SizedBox(
-                        width: 20,
-                        child: Checkbox(
-                          
-                          checkColor: Color.fromARGB(255, 2, 255, 65),
-                          fillColor: const MaterialStatePropertyAll(
-                            Color.fromARGB(108, 142, 163, 172),
+                  itemBuilder: (context, index) => Dismissible(
+
+                    key: UniqueKey(),
+                    background: Container(
+                      color: Color.fromARGB(150, 56, 16, 16),
+                    ),
+                    
+                    onDismissed: (direction) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text("Are you sure you want to delete",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 194, 194, 194))),
+                            backgroundColor:
+                                const Color.fromARGB(255, 4, 47, 58),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    SqlHelper.deleteItem(journels[index]['Id']);
+                                    refreshJournel();
+                                    Navigator.of(context).pop();                                   
+                                  },
+                                  child: const Text(
+                                    "Yes",
+                                    style: TextStyle(
+                                        color: Color.fromARGB(218, 45, 85, 0)),
+                                  )),
+                              TextButton(
+                                  onPressed: () {
+                                    refreshJournel();
+                                    Navigator.of(context).pop(false);
+                                    
+                                  },
+                                  child: const Text(
+                                    "Cancle",
+                                    style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 194, 194, 194)),
+                                  )),
+                            ],
+                          );
+                        },
+                      );
+                      
+                    },
+                    child: Card(
+                      elevation: 1,
+                      shadowColor: Color.fromARGB(183, 66, 70, 71),
+                      margin: EdgeInsets.all(10),
+                      color: Color.fromARGB(108, 36, 58, 66),
+                      child: ListTile(
+                        leading: SizedBox(
+                          width: 20,
+                          child: Checkbox(
+                            checkColor: Color.fromARGB(255, 2, 255, 65),
+                            fillColor: const MaterialStatePropertyAll(
+                              Color.fromARGB(108, 142, 163, 172),
+                            ),
+                            shape: const ContinuousRectangleBorder(),
+                            value:
+                                journels[index]['status'] == 0 ? false : true,
+                            onChanged: (value) {
+                              if (journels[index]['status'] == 0) {
+                                updatestatus(
+                                    journels[index]['Id'],
+                                    journels[index]['title'],
+                                    journels[index]['description'],
+                                    1);
+                              } else {
+                                updatestatus(
+                                    journels[index]['Id'],
+                                    journels[index]['title'],
+                                    journels[index]['description'],
+                                    0);
+                              }
+                            },
                           ),
-                          shape: const ContinuousRectangleBorder(),
-                          value: journels[index]['status'] == 0 ? false : true,
-                          onChanged: (value) {
-                            if (journels[index]['status'] == 0) {
-                              updatestatus(
-                                  journels[index]['Id'],
-                                  journels[index]['title'],
-                                  journels[index]['description'],
-                                  1);
-                            } else {
-                              updatestatus(
-                                  journels[index]['Id'],
-                                  journels[index]['title'],
-                                  journels[index]['description'],
-                                  0);
-                            }
-                          },
                         ),
-                      ),
-                      title: Text(journels[index]['title'],
-                          style: const TextStyle(
-                              color: Color.fromARGB(255, 121, 96, 7),
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700)),
-                      subtitle: Text(journels[index]['description'],
-                          style: const TextStyle(
-                              color: Color.fromARGB(255, 0, 156, 170),
-                              fontSize: 17,
-                              overflow: TextOverflow.ellipsis)),
-                      trailing: SizedBox(
-                        width: 100,
-                        child: Row(
+
+                        title: Text(journels[index]['title'],
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 121, 96, 7),
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700)),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            IconButton(
-                                onPressed: () {
-                                  showform(journels[index]['Id'],
-                                      journels[index]['status']);
-                                },
-                                icon: const Icon(
-                                  Icons.edit_document,
-                                  color: Color.fromARGB(255, 88, 71, 8),
-                                )),
-                            IconButton(
-                                onPressed: () {
-                                  SqlHelper.deleteItem(journels[index]['Id']);
-                                  refreshJournel();
-                                },
-                                icon: const Icon(
-                                  Icons.delete_sweep,
-                                  color: Color.fromARGB(255, 88, 71, 8),
-                                ))
+                            Text(journels[index]['description'],
+                                style: const TextStyle(
+                                    color: Color.fromARGB(255, 0, 156, 170),
+                                    fontSize: 17,
+                                    overflow: TextOverflow.ellipsis)),
+                            SizedBox(height: 2,),
+                              Text("Created on: ${journels[index]['createdAt'].toString().substring(0,10)}",
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(255, 110, 110, 110),
+                                      fontSize: 14,
+                                  ))
                           ],
+                        ),
+                        trailing: SizedBox(
+                          
+                          width: 50,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                splashRadius: 20,
+                                  onPressed: () {
+                                    showform(journels[index]['Id'],
+                                        journels[index]['status']);
+                                  },
+                                  icon: const Icon(
+                                    Icons.edit_document,
+                                    color: Color.fromARGB(255, 88, 71, 8),
+                                  )),
+                              
+                            ],
+                          ),
                         ),
                       ),
                     ),
